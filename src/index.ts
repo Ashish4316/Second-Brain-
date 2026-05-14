@@ -30,7 +30,7 @@ app.post("/api/v1/signin",async (req,res) => {
     const existingUser = await UserModel.findOne({username,password});
     if(existingUser){
         const token = jwt.sign({ id: existingUser._id.toString() }, JWT_PASSWORD);
-        res.json({ token });
+        return res.json({ token });
     } else {
         res.status(403).json({ message : "Incorrect credentials" })
     }
@@ -51,15 +51,32 @@ app.post("/api/v1/content",userMiddleware,async (req,res) => {
 })
 
 app.get("/api/v1/content",userMiddleware,(req, res) => {
-    
+    //@ts-ignore
+    const userId = req.userId;
+    const content = ContentModel.find({
+        userId : userId
+    }).populate("userId","username");
+    res.json({
+        content : content
+    })
 })
 
 app.delete("/api/v1/content",(req,res) => {
-
+    //@ts-ignore 
+    const userId = req.userId;
+    //@ts-ignore
+    const contentId = req.contentId;
+    const content = ContentModel.findByIdAndDelete({
+        userId : userId,
+        contentId : contentId,
+    })
+    res.json({
+        content : content
+    })
 })
 
 app.post("/api/v1/brain/share",(req,res) => {
-
+    
 })
 
 app.get("api/v1/brain/:shareLink",(req,res) => {
